@@ -46,7 +46,7 @@ class player:
         self.sprite = makeSprite(spr,frames=32) #akse player
         self.xgrav = 1 # age -1 beshe yani jazabe bar aks shode
         self.inAir = False #in vase ine ke vasat paridan natooni jazabe taghir bedi
-        self.mg = "regG" # in nabashe player toye zamin fooroo mire
+        self.mg = "regG" # in nabashe player toye zamin fooroo mire (zamin kononie player ro taeen mikone)
         showSprite(self.sprite)
         ##### marboot be animation
         self.frame = 0
@@ -61,15 +61,17 @@ class player:
             self.frame = (self.frame+1)%self.gframe
             self.theTime += 60
 
-        if self.alive:
-
-            if (keyPressed("up") and self.inAir == False and self.mg == "regG"):
+        if self.alive: #check mikone ke player zende hast ya na
+        
+            #control player
+        
+            if (keyPressed("up") and self.inAir == False and self.mg == "regG"): #kelid bala ro bezanin player mipare bala. hamchenin check mikone ke 1.player toye hava nist 2.player roye zamine (2 baad taghir mikone)
 
                 playSound(s_jump)
                 print("Player is alive")
                 #transformSprite(self.sprite, 0, 1, hflip=True, vflip=True) #player ro bar aks mikone
                 self.xgrav = -1                                             #jazebe bar aks mishe
-            elif (keyPressed("down") and self.inAir == False and self.mg == "revG"):
+            elif (keyPressed("down") and self.inAir == False and self.mg == "revG"): #mesle ghabli vali baraye az bala be paeen omadane player (kelid paeen ro bezanim mipare paeen)
                 playSound(s_jump)
                 print("Player is alive")
                 #transformSprite(self.sprite, 0, 1, hflip=False, vflip=False)
@@ -120,7 +122,7 @@ class player:
             self.alive = False
             print("Player is dead")
             killSprite(self.sprite)
-            #test music
+            #test music(music momkene ziad boland bashe, check konin)
             stopSound(mus_test1)
             playSound(mus_test2, loops=-1) #loop = -1 bashe bi nahyat loop mishe
 
