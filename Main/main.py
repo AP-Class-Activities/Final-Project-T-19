@@ -26,9 +26,11 @@ setBackgroundImage("images/bg.png")
 setWindowTitle("Gravity Ninja")
 setIcon('images/icon.png')
 
-#targetTime = 0
+targetTime = 0
+
 
 ############ test sound, music and gameover text
+a = 23
 gameover = makeLabel("GAME OVER",40,200,192,"black")
 s_jump = makeSound('sounds/Jump.wav')
 mus_test1 = makeSound('sounds/mus_inGame.wav')
@@ -36,7 +38,7 @@ mus_test2 = makeSound('sounds/mus_inMenu.wav')
 #############
 
 
-class player:
+class Player:
 
     def __init__(self,xpos,ypos,grav,spr):
         self.alive = True
@@ -55,9 +57,9 @@ class player:
         #
         # self.a0 = False
         # self.a1 = False
-    def START(self):
+    def spawn(self):
 
-        if clock() > self.theTime:  ##### marboot be animation
+        if self.theTime > self.theTime:  ##### marboot be animation
             self.frame = (self.frame+1)%self.gframe
             self.theTime += 60
 
@@ -117,7 +119,7 @@ class player:
     def draw(self):
         pass
 
-    def KILL(self): #player mimire va spritesh az bane mire
+    def despawn(self): #player mimire va spritesh az bane mire
         if self.alive == True:
             self.alive = False
             print("Player is dead")
@@ -125,22 +127,48 @@ class player:
             #test music(music momkene ziad boland bashe, check konin)
             stopSound(mus_test1)
             playSound(mus_test2, loops=-1) #loop = -1 bashe bi nahyat loop mishe
+class Spawner:
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+    def spawnPlayer(self,player):
+        player.spawn()
+    def spawnCoin(self):
+        pass
 
-class testobj:
-    def __init__(self,xpos,ypos,spr):
-        self.xpos = xpos
-        self.ypos = ypos
-        self.sprite = makeSprite(spr)
+
+
+class ScoreSystem:
+    def __init__(self, xpos, ypos,size): #sprite too?
+        self.score = 0
+        self.body = makeLabel(str(self.score),size, xpos, ypos, "black")
+    def Reset(self):
+        self.score = 0
+    def Setscore(self,num):
+        self.score = num
+        changeLabel(self.body,str(self.score))
+    def Addscore(self,num):
+        self.score += num
+        changeLabel(self.body, str(self.score))
+    def testprint(self):
+        print(self.score)
+    def draw(self):
+        showLabel(self.body)
 
 
 
 
-pl = player(112,322,7,"images/SPR_NINJA.png")
 
+
+pl = Player(112,322,7,"images/SPR_NINJA.png")
+spawnerP = Spawner(112,322)
+
+scoreboard = ScoreSystem(575,10,40)
+scoreboard.draw()
 
 playSound(mus_test1,loops=-1) #turn to class (music player)
-
 run = True
+
 while run:
 
     # if (keyPressed("left")): #in size windows ro tagheer mide. shayad be dard bokhore baadan.
@@ -159,13 +187,20 @@ while run:
     #     bgs = 0
 
     scrollBackground(scrollSpeed, 0) #harekate background
-    pl.START()
+    spawnerP.spawnPlayer(pl)
     ############################
 
     if (keyPressed("k")): #kelid k = koshtan player
-        pl.KILL()
+        pl.despawn()
         scrollSpeed = 1
         showLabel(gameover)
+
+    if (keyPressed("s")):
+        scoreboard.Addscore(1)
+
+    if clock() > targetTime:  # in ye timer hast vase baad
+        targetTime = clock() + 2000
+        scoreboard.Addscore(1)
 
 
     tick(60) #fps
