@@ -32,7 +32,8 @@ targetTime = 0
 ############ test sound, music and gameover text
 a = 23
 gameover = makeLabel("GAME OVER",40,200,192,"black")
-s_jump = makeSound('sounds/Jump.wav')
+s_jump = makeSound('sounds/snd_jump.wav')
+s_coin = makeSound('sounds/snd_coin.wav')
 mus_test1 = makeSound('sounds/mus_inGame.wav')
 mus_test2 = makeSound('sounds/mus_inMenu.wav')
 #############
@@ -40,43 +41,41 @@ mus_test2 = makeSound('sounds/mus_inMenu.wav')
 
 class Player:
 
-    def __init__(self,xpos,ypos,grav,spr):
+    def __init__(self,xpos,ypos,width,height,grav,spr):
         self.alive = True
         self.xpos = xpos
         self.ypos = ypos
+        self.width = width
+        self.height = height
         self.grav = grav #har che ghadr bishtar bashe jazebe bishtare
         self.sprite = makeSprite(spr,frames=32) #akse player
         self.xgrav = 1 # age -1 beshe yani jazabe bar aks shode
         self.inAir = False #in vase ine ke vasat paridan natooni jazabe taghir bedi
         self.mg = "regG" # in nabashe player toye zamin fooroo mire (zamin kononie player ro taeen mikone)
-        showSprite(self.sprite)
+
         ##### marboot be animation
         self.frame = 0
         self.gframe = 8
-        self.theTime = clock()
+        self.localClock = clock()
         #
+        self.hitbox = (self.xpos - 5.5, self.ypos - 5.5, self.width, self.height)
         # self.a0 = False
         # self.a1 = False
     def spawn(self):
-
-        if self.theTime > self.theTime:  ##### marboot be animation
+        showSprite(self.sprite)
+        if clock() > self.localClock:  ##### marboot be animation
             self.frame = (self.frame+1)%self.gframe
-            self.theTime += 60
+            self.localClock += 60
 
         if self.alive: #check mikone ke player zende hast ya na
         
             #control player
         
             if (keyPressed("up") and self.inAir == False and self.mg == "regG"): #kelid bala ro bezanin player mipare bala. hamchenin check mikone ke 1.player toye hava nist 2.player roye zamine (2 baad taghir mikone)
-
                 playSound(s_jump)
-                print("Player is alive")
-                #transformSprite(self.sprite, 0, 1, hflip=True, vflip=True) #player ro bar aks mikone
                 self.xgrav = -1                                             #jazebe bar aks mishe
             elif (keyPressed("down") and self.inAir == False and self.mg == "revG"): #mesle ghabli vali baraye az bala be paeen omadane player (kelid paeen ro bezanim mipare paeen)
                 playSound(s_jump)
-                print("Player is alive")
-                #transformSprite(self.sprite, 0, 1, hflip=False, vflip=False)
                 self.xgrav = 1                                              #jazebe bar migarde halat addi
 
             self.ypos += (self.grav * self.xgrav) # mokhtasat y player ro hesab mikone
@@ -106,7 +105,6 @@ class Player:
                     changeSpriteImage(self.sprite, 0 * 8 + self.frame)
                 elif self.mg == "revG" :
                     changeSpriteImage(self.sprite, 1 * 8 + self.frame)
-# middle 192
             elif self.inAir == True:
                 self.gframe = 4
                 if self.mg == "regG" :
@@ -116,8 +114,8 @@ class Player:
                     #changeSpriteImage(self.sprite, 6 * 4 + self.frame)
                     changeSpriteImage(self.sprite, 27)
 
-    def draw(self):
-        pass
+            self.hitbox = (self.xpos - 25, self.ypos - 25, self.width, self.height)
+        #pygame.draw.rect(win, (0, 0, 255), self.hitbox, 2)
 
     def despawn(self): #player mimire va spritesh az bane mire
         if self.alive == True:
@@ -131,11 +129,81 @@ class Spawner:
     def __init__(self,x,y):
         self.x = x
         self.y = y
+        self.localClock = clock()
+
     def spawnPlayer(self,player):
         player.spawn()
-    def spawnCoin(self):
-        pass
 
+    def spawnCoin(self):
+        global coinlist , x , Spr , Pt
+        Spr = "images/spr_coin1.png"
+        Pt = 5
+        RanY = [290,240,190,140,90]
+        SprList = ["images/spr_coin1.png" , "images/spr_coin2.png" , "images/spr_coin3.png" , "images/spr_coin4.png"]
+        Cchance = random.randrange(1,100)
+        RanTimer = random.randrange(500,7000)
+        if Cchance >= 55:
+            Spr = SprList[0]
+            Pt = 5
+        elif 29 < Cchance < 55:
+            Spr = SprList[1]
+            Pt = 10
+        elif 1 < Cchance < 15:
+            Spr = SprList[2]
+            Pt = 20
+        elif Cchance == 1:
+            Spr = SprList[3]
+            Pt = 200
+
+        if clock() > self.localClock:
+            self.localClock = clock() + RanTimer
+            coinlist.append(Coin(self.x, random.choice(RanY),11,11, Spr, Pt))
+        for x in coinlist:
+            x.spawn()
+            if x.collide(pl.hitbox):
+                coinlist.pop(coinlist.index(x))
+                killSprite(x.sprite)
+                playSound(s_coin)
+                x.collected = True
+                scoreboard.Addscore(x.point)
+
+
+
+
+
+
+
+
+class Coin:
+    def __init__(self,xpos,ypos,width,height,spr,point):
+        self.xpos = xpos
+        self.ypos = ypos
+        self.width = width
+        self.height = height
+        self.sprite = makeSprite(spr)
+        self.point = point
+        self.collected = False
+        self.hitbox = (self.xpos, self.ypos, self.width, self.height)
+
+    def spawn(self):
+
+        if self.collected == False:
+            showSprite(self.sprite)
+            self.xpos -= 2
+            moveSprite(self.sprite, self.xpos, self.ypos, True)
+        if self.xpos < 0:
+            killSprite(self.sprite)
+            self.collected = True
+
+        self.hitbox = (self.xpos - 5.5, self.ypos - 5.5, self.width, self.height)
+        # pygame.draw.rect(win, (0, 0, 255), self.hitbox, 2)
+
+
+    def collide(self, rect):
+        if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
+            if rect[1] + rect[3] > self.hitbox[1] and rect[1] < self.hitbox[1] + self.hitbox[3]:
+                return True
+        return False
 
 
 class ScoreSystem:
@@ -155,21 +223,41 @@ class ScoreSystem:
     def draw(self):
         showLabel(self.body)
 
+class Enemy:
+    def __init__(self,xpos,ypos,spr):
+        self.xpos = xpos
+        self.ypos = ypos
+        self.sprite = makeSprite(spr)
+
+class MusicPlayer:
+    pass
 
 
 
+global pl
+pl = Player(112,322,45,45,7,"images/SPR_NINJA.png")
 
-
-pl = Player(112,322,7,"images/SPR_NINJA.png")
 spawnerP = Spawner(112,322)
+spawnerC = Spawner(750,322)
 
+global scoreboard
 scoreboard = ScoreSystem(575,10,40)
 scoreboard.draw()
+
+c = Coin(-999, -999,11,11, "images/spr_coin2.png", 20)
+coinlist = [c]
 
 playSound(mus_test1,loops=-1) #turn to class (music player)
 run = True
 
+
+
 while run:
+
+    spawnerP.spawnPlayer(pl)
+    spawnerC.spawnCoin()
+
+
 
     # if (keyPressed("left")): #in size windows ro tagheer mide. shayad be dard bokhore baadan.
     #     W , H = H , W
@@ -187,7 +275,7 @@ while run:
     #     bgs = 0
 
     scrollBackground(scrollSpeed, 0) #harekate background
-    spawnerP.spawnPlayer(pl)
+
     ############################
 
     if (keyPressed("k")): #kelid k = koshtan player
@@ -198,9 +286,10 @@ while run:
     if (keyPressed("s")):
         scoreboard.Addscore(1)
 
-    if clock() > targetTime:  # in ye timer hast vase baad
-        targetTime = clock() + 2000
-        scoreboard.Addscore(1)
+    # if clock() > targetTime:
+    #     targetTime = clock() + 2000
+    #     scoreboard.Addscore(1)
+
 
 
     tick(60) #fps
