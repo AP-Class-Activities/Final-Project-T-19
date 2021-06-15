@@ -120,10 +120,8 @@ class Spawner:
         self.x = x
         self.y = y
         self.localClock = clock()
-
     def spawnPlayer(self,player):
         player.spawn()
-
     def spawnCoin(self):
         global coinlist , x , Spr , Pt
         Spr = "images/spr_coin1.png"
@@ -146,7 +144,7 @@ class Spawner:
             Pt = 200
 
         if clock() > self.localClock:
-            self.localClock = clock() + RanTimer
+            self.localClock = clock() + 1#RanTimer
             coinlist.append(Coin(self.x, random.choice(RanY),11,11, Spr, Pt))
         for x in coinlist:
             x.spawn()
@@ -164,17 +162,25 @@ class Coin:
         self.ypos = ypos
         self.width = width
         self.height = height
-        self.sprite = makeSprite(spr)
+        self.sprite = makeSprite(spr,frames= 8)
         self.point = point
         self.collected = False
         self.hitbox = (self.xpos, self.ypos, self.width, self.height)
-
+        self.frame = 0
+        self.gframe = 8
+        self.localClock = clock()
     def spawn(self):
 
         if self.collected == False:
+            if clock() > self.localClock:
+                self.frame = (self.frame + 1) % self.gframe
+                self.localClock += 60
+
             showSprite(self.sprite)
             self.xpos -= 2
             moveSprite(self.sprite, self.xpos, self.ypos, True)
+            changeSpriteImage(self.sprite, 0 * 8 + self.frame)
+
         if self.xpos < 0:
             killSprite(self.sprite)
             self.collected = True
@@ -232,7 +238,7 @@ global scoreboard
 scoreboard = ScoreSystem(575,10,40)
 scoreboard.draw()
 
-coinlist = [Coin(-999, -999,11,11, "images/spr_coin2.png", 20)]
+coinlist = [Coin(-999, -999,11,11, "images/spr_coin1.png", 20)]
 
 playSound(mus_test1,loops=-1) #turn to class (music player)
 
