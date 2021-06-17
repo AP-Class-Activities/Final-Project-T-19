@@ -11,8 +11,9 @@ run = True
 
 while run:
 
-    spawnerP.spawnPlayer(pl)
+    pl.spawn()
     spawnerC.spawnCoin()
+    spawnerH.spawnHazard()
     scrollBackground(scrollSpeed, 0)  # harekate background
 
     # if (keyPressed("left")): #in size windows ro tagheer mide. shayad be dard bokhore baadan.
@@ -37,8 +38,7 @@ while run:
 
     if (keyPressed("k")): #kelid k = koshtan player
         pl.despawn()
-        scrollSpeed = 1
-        showLabel(gameover)
+
 
     if (keyPressed("s")):
         scoreboard.Addscore(1)

@@ -13,6 +13,7 @@ setAutoUpdate(False)
 W, H = 640, 384 #tool o arze windows
 win = screenSize(W,H)
 
+global scrollSpeed
 scrollSpeed = -5 #sorat harekate background
 setBackgroundImage("images/bg.png")
 
@@ -30,6 +31,61 @@ mus_test2 = makeSound('sounds/mus_inMenu.wav')
 #########################################
 
 #Classes
+
+class Spawner:
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+        self.localClock = clock()
+    def spawnCoin(self):
+        global coinlist , c , Spr , Pt
+        Spr = "images/spr_coin1.png"
+        Pt = 5
+        RanY = [290,240,190,140,90]
+        SprList = ["images/spr_coin1.png" , "images/spr_coin2.png" , "images/spr_coin3.png" , "images/spr_coin4.png"]
+        Cchance = random.randrange(1,100)
+        RanTimer = random.randrange(500,7000)
+        if Cchance >= 55:
+            Spr = SprList[0]
+            Pt = 5
+        elif 29 < Cchance < 55:
+            Spr = SprList[1]
+            Pt = 10
+        elif 1 < Cchance < 15:
+            Spr = SprList[2]
+            Pt = 20
+        elif Cchance == 1:
+            Spr = SprList[3]
+            Pt = 200
+
+        if clock() > self.localClock:
+            self.localClock = clock() + RanTimer
+            coinlist.append(Coin(self.x, random.choice(RanY),11,11, Spr, Pt))
+        for c in coinlist:
+            c.spawn()
+            if c.collide(pl.hitbox):
+                coinlist.pop(coinlist.index(c))
+                killSprite(c.sprite)
+                playSound(s_coin)
+                c.collected = True
+                scoreboard.Addscore(c.point)
+
+
+    def spawnHazard(self):
+        global enemylist, h
+        RanY = [290, 90]
+        RanTimer = random.randrange(7000, 10000) #later should be affected by screen/scroll speed(which increases overtime)
+
+        if clock() > self.localClock:
+            self.localClock = clock() + RanTimer
+            enemylist.append(Enemy(self.x, random.choice(RanY), 113, 58, "images/spr_enemy.png"))
+        for h in enemylist:
+            h.spawn()
+            if h.collide(pl.hitbox):
+                enemylist.pop(enemylist.index(h))
+                killSprite(h.sprite)
+                pl.despawn()
+
 
 class Player:
 
@@ -110,50 +166,10 @@ class Player:
             self.alive = False
             print("Player is dead")
             killSprite(self.sprite)
+            showLabel(gameover)
             #test music(music momkene ziad boland bashe, check konin)
             stopSound(mus_test1)
             playSound(mus_test2, loops=-1) #loop = -1 bashe bi nahyat loop mishe
-
-
-class Spawner:
-    def __init__(self,x,y):
-        self.x = x
-        self.y = y
-        self.localClock = clock()
-    def spawnPlayer(self,player):
-        player.spawn()
-    def spawnCoin(self):
-        global coinlist , x , Spr , Pt
-        Spr = "images/spr_coin1.png"
-        Pt = 5
-        RanY = [290,240,190,140,90]
-        SprList = ["images/spr_coin1.png" , "images/spr_coin2.png" , "images/spr_coin3.png" , "images/spr_coin4.png"]
-        Cchance = random.randrange(1,100)
-        RanTimer = random.randrange(500,7000)
-        if Cchance >= 55:
-            Spr = SprList[0]
-            Pt = 5
-        elif 29 < Cchance < 55:
-            Spr = SprList[1]
-            Pt = 10
-        elif 1 < Cchance < 15:
-            Spr = SprList[2]
-            Pt = 20
-        elif Cchance == 1:
-            Spr = SprList[3]
-            Pt = 200
-
-        if clock() > self.localClock:
-            self.localClock = clock() + 1#RanTimer
-            coinlist.append(Coin(self.x, random.choice(RanY),11,11, Spr, Pt))
-        for x in coinlist:
-            x.spawn()
-            if x.collide(pl.hitbox):
-                coinlist.pop(coinlist.index(x))
-                killSprite(x.sprite)
-                playSound(s_coin)
-                x.collected = True
-                scoreboard.Addscore(x.point)
 
 
 class Coin:
@@ -163,9 +179,9 @@ class Coin:
         self.width = width
         self.height = height
         self.sprite = makeSprite(spr,frames= 8)
+        self.speed = 2
         self.point = point
         self.collected = False
-        self.hitbox = (self.xpos, self.ypos, self.width, self.height)
         self.frame = 0
         self.gframe = 8
         self.localClock = clock()
@@ -177,7 +193,7 @@ class Coin:
                 self.localClock += 60
 
             showSprite(self.sprite)
-            self.xpos -= 2
+            self.xpos -= self.speed
             moveSprite(self.sprite, self.xpos, self.ypos, True)
             changeSpriteImage(self.sprite, 0 * 8 + self.frame)
 
@@ -195,6 +211,38 @@ class Coin:
                 return True
         return False
 
+class Enemy:
+    def __init__(self, xpos, ypos, width, height, spr):
+        self.xpos = xpos
+        self.ypos = ypos
+        self.width = width
+        self.height = height
+        self.sprite = makeSprite(spr,frames=2)
+        self.speed = 3
+        self.point = 0
+
+
+    def spawn(self):
+        showSprite(self.sprite)
+        self.xpos -= self.speed
+        if self.ypos == 90:
+            changeSpriteImage(self.sprite,1)
+        else:
+            changeSpriteImage(self.sprite,0)
+
+        moveSprite(self.sprite, self.xpos, self.ypos, True)
+
+        self.hitbox = (self.xpos - 46.5, self.ypos - 29, self.width - 36, self.height)
+        pygame.draw.rect(win, (0, 0, 255), self.hitbox, 2)
+        if self.xpos < -50:
+            killSprite(self.sprite)
+
+
+    def collide(self, rect):
+        if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
+            if rect[1] + rect[3] > self.hitbox[1] and rect[1] < self.hitbox[1] + self.hitbox[3]:
+                return True
+        return False
 
 class ScoreSystem:
     def __init__(self, xpos, ypos,size): #sprite too?
@@ -214,13 +262,6 @@ class ScoreSystem:
         showLabel(self.body)
 
 
-class Enemy:
-    def __init__(self,xpos,ypos,spr):
-        self.xpos = xpos
-        self.ypos = ypos
-        self.sprite = makeSprite(spr)
-
-
 class MusicPlayer:
     pass
 
@@ -231,14 +272,15 @@ class MusicPlayer:
 global pl
 pl = Player(112,322,45,45,7,"images/SPR_NINJA.png")
 
-spawnerP = Spawner(112,322)
 spawnerC = Spawner(750,322)
+spawnerH = Spawner(750,322)
 
 global scoreboard
 scoreboard = ScoreSystem(575,10,40)
 scoreboard.draw()
 
 coinlist = [Coin(-999, -999,11,11, "images/spr_coin1.png", 20)]
+enemylist = [Enemy(-999, -999,113,58, "images/spr_enemy.png")]
 
 playSound(mus_test1,loops=-1) #turn to class (music player)
 
