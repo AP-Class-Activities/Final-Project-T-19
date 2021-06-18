@@ -9,11 +9,15 @@ import random
 
 run = True
 
+
+
 while run:
 
     pl.spawn()
     spawnerC.spawnCoin()
     spawnerH.spawnHazard()
+    spawnerB.spawnBlock()
+    pl.collisionCheck()
     scrollBackground(scrollSpeed, 0)  # harekate background
 
     # if (keyPressed("left")): #in size windows ro tagheer mide. shayad be dard bokhore baadan.
