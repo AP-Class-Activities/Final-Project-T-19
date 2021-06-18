@@ -129,7 +129,6 @@ class Player:
         self.inAir = True #in vase ine ke vasat paridan natooni jazabe taghir bedi
         self.mg = "regG" # in nabashe player toye zamin fooroo mire (zamin kononie player ro taeen mikone)
         self.Grounded = False
-        self.IsonGround = False
 
         ##### marboot be animation va hitbox
         self.frame = 0
