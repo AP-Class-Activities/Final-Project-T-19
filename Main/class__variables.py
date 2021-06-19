@@ -33,51 +33,51 @@ mus_test2 = makeSound('sounds/mus_inMenu.wav')
 
 #Classes
 
-class Spawner:
+class Spawner: #in class dar khodesh sazande haye object haye mokhtalef ro dare. momkene baad az class be tabe tabdilesh konim.
     def __init__(self,x,y):
         self.x = x
         self.y = y
-        self.localClock = clock()
-        self.init = True
+        self.localClock = clock() #in baraye dorost kardan ye timer estafade mishe
+        self.init = True # marboot be block ha
     def spawnCoin(self):
-        global coinlist , Spr , Pt
+        global coinlist , Spr , Pt #ina ro global kardim ke moghe shooro avalie barname error nade
         Spr = "images/spr_coin1.png"
-        Pt = 5
-        RanY = [290,240,190,140,90]
-        SprList = ["images/spr_coin1.png" , "images/spr_coin2.png" , "images/spr_coin3.png" , "images/spr_coin4.png"]
-        Cchance = random.randrange(1,100)
-        RanTimer = random.randrange(500,7000)
-        if Cchance >= 55:
-            Spr = SprList[0]
-            Pt = 5
-        elif 29 < Cchance < 55:
+        Pt = 5  #in o balayee ham baraye jologiri az error az pish taeen mikonim.
+        RanY = [290,240,190,140,90] # mokhtasat y (amoodi) ghabel dastras baraye spawne coin.
+        SprList = ["images/spr_coin1.png" , "images/spr_coin2.png" , "images/spr_coin3.png" , "images/spr_coin4.png"] #aks haye marboot be seke
+        Cchance = random.randrange(1,100) #ba in mitoonim dar har dor az halghe az beyn 1 ta 100 ye adad entekhab kard (be estelah chance dorost kard). in baraye entekhab noe coin estefade mishe.
+        RanTimer = random.randrange(500,7000) #mesle balaee vali baraye timer estefade mishe
+        if Cchance >= 55: #masalan in coin 45% emkane spawn dare
+            Spr = SprList[0] #aks marboot be coin ro taeen mikone
+            Pt = 5 #emtiazi ke coin dar bar dare.
+        elif 29 < Cchance < 55: #dar hali ke in yeki 26%
             Spr = SprList[1]
             Pt = 10
-        elif 1 < Cchance < 15:
+        elif 1 < Cchance < 15: #in 14%
             Spr = SprList[2]
             Pt = 20
-        elif Cchance == 1:
+        elif Cchance == 1: #in 1%
             Spr = SprList[3]
             Pt = 200
 
-        if clock() > self.localClock:
-            self.localClock = clock() + RanTimer
-            coinlist.append(Coin(self.x, random.choice(RanY),11,11, Spr, Pt))
-        for c in coinlist:
+        if clock() > self.localClock: #timer
+            self.localClock = clock() + RanTimer #timer bar asase fps bazi va meghdare moteghayere "RanTimer" coin spawn mikone
+            coinlist.append(Coin(self.x, random.choice(RanY),11,11, Spr, Pt)) #dar har dor az timer yek coin be list ezafe mikone
+        for c in coinlist: #ba estefade az in halghe tamame coin haye ijad shode ro barresi va spawn mikone.
             c.spawn()
-            if c.xpos < 0:
-                coinlist.pop(coinlist.index(c))
-                killSprite(c.sprite)
-            if c.collide(pl.hitbox):
-                coinlist.pop(coinlist.index(c))
+            if c.xpos < 0: #agar az safhe kharej shavad...
+                coinlist.pop(coinlist.index(c)) #...coin az list hazf mishavad
+                killSprite(c.sprite) #in nabashe akse coin toye safhe mimoone
+            if c.collide(pl.hitbox): #agar player be coin barkhord konad...
+                coinlist.pop(coinlist.index(c)) #... ...coin az list hazf...
                 killSprite(c.sprite)
                 c.collected = True
-                playSound(s_coin)
-                scoreboard.Addscore(c.point)
+                playSound(s_coin) 
+                scoreboard.Addscore(c.point) #... va emtiaze an afzoode mishavad
 
+#baghie spawner ha ham bar asase hamin mantegh amal mikonand
 
-
-    def spawnHazard(self):
+    def spawnHazard(self):           
         global enemylist, h
         RanY = [320, 96]
         RanTimer = random.randrange(7000, 10000) #later should be affected by screen/scroll speed(which increases overtime)
@@ -97,7 +97,7 @@ class Spawner:
         global BLOCKlist
         if clock() > self.localClock:
             self.localClock = clock() + 250
-            if self.init:
+            if self.init: #inja yek zamin az pish taeen shode dorost mikonim ,chon spawner aval block ha ro biroon az safhe spawn mikone va ta be player berese player miofte.
                 for i in range(1, 742, 32):
                     BLOCKlist.append(Block(0 + i, 18, 32, 32, "images/spr_block.png"))
                     BLOCKlist.append(Block(0 + i, 50, 32, 32, "images/spr_block.png"))
@@ -128,8 +128,7 @@ class Player:
         self.xgrav = 1 # age -1 beshe yani jazabe bar aks shode
         self.inAir = True #in vase ine ke vasat paridan natooni jazabe taghir bedi
         self.mg = "regG" # in nabashe player toye zamin fooroo mire (zamin kononie player ro taeen mikone)
-        self.Grounded = False
-        self.IsonGround = False
+        self.Grounded = False #mesle "self.inAir"
 
         ##### marboot be animation va hitbox
         self.frame = 0
@@ -148,13 +147,13 @@ class Player:
         
             #control player
         
-            if (keyPressed("up") and self.inAir == False and self.Grounded == True and self.mg == "regG"): #kelid bala ro bezanin player mipare bala. hamchenin check mikone ke 1.player toye hava nist 2.player roye zamine (2 baad taghir mikone)
+            if (keyPressed("up") and self.inAir == False and self.Grounded == True and self.mg == "regG"): #kelid bala ro bezanin player mipare bala. hamchenin check mikone ke 1.player toye hava nist 2.player roye zamine va roye kodom zamin
                 playSound(s_jump)
                 self.Grounded = False
                 self.inAir = True
                 self.mg = "revG"
                 self.xgrav = -1
-            elif (keyPressed("down") and self.inAir == False and self.Grounded == True and self.mg == "revG"): #mesle ghabli vali baraye az bala be paeen omadane player (kelid paeen ro bezanim mipare paeen)
+            elif (keyPressed("down") and self.inAir == False and self.Grounded == True and self.mg == "revG"): #mesle ghabli vali ba jazebeye bar aks
                 playSound(s_jump)
                 self.Grounded = False
                 self.inAir = True
@@ -184,15 +183,15 @@ class Player:
             self.hitbox = (self.xpos - 25, self.ypos - 25, self.width, self.height)
         #pygame.draw.rect(win, (0, 0, 255), self.hitbox, 2)
 
-    def collide(self, rect):
+    def collide(self, rect): #hit boxe yek object ro daryaft mikone va check mikone ke ba hit box khodesh barkhord mikone ya na (baraye player momkene estefade nashe)
         if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
             if rect[1] + rect[3] > self.hitbox[1] and rect[1] < self.hitbox[1] + self.hitbox[3]:
                 return True
         return False
 
-    def collisionCheck(self):
+    def collisionCheck(self): #ghesmate dovvome control player bar asase block ha
 
-        if self.mg == "regG":
+        if self.mg == "regG": #jazabe bar asas zamin kononi taeen mishe 
             self.xgrav = 1
         if self.mg == "revG":
             self.xgrav = -1
@@ -201,12 +200,12 @@ class Player:
         global i
         for i in BLOCKlist:
 
-            if i.pseudoCollide(self.hitbox):
+            if i.pseudoCollide(self.hitbox): #barkhord player ba hitboxe farzie block (baraye check kardan barkhord player ba tool haye block)
                 self.Grounded = True
                 self.inAir = False
                 self.xgrav = 0
 
-            if i.collide(self.hitbox):
+            if i.collide(self.hitbox): #barkhord player ba hitboxe aslie block (baraye check kardan barkhord player ba arz haye block)
                 print("player hit a block")
 
     def despawn(self): #player mimire va spritesh az bane mire
@@ -229,13 +228,13 @@ class Coin:
         self.sprite = makeSprite(spr,frames= 8)
         self.speed = 2
         self.point = point
-        self.collected = False
+        self.collected = False 
         self.frame = 0
         self.gframe = 8
         self.localClock = clock()
     def spawn(self):
 
-        if self.collected == False:
+        if self.collected == False: #animation
             if clock() > self.localClock:
                 self.frame = (self.frame + 1) % self.gframe
                 self.localClock += 60
@@ -301,7 +300,7 @@ class Block:
         self.gframe = 8
         self.localClock = clock()
         self.hitbox = (self.xpos - 16, self.ypos - 16, self.width, self.height)
-        self.pitbox = (self.xpos - 19, self.ypos - 24, self.width + 4, self.height + 10)
+        self.pitbox = (self.xpos - 19, self.ypos - 24, self.width + 4, self.height + 10) #in hitbox bozorg tar az khod block hast. in ro dorost kardam chon player be dalayeli dar block fooroo miraft.
     def spawn(self):
         showSprite(self.sprite)
         self.xpos -= self.speed
@@ -311,13 +310,13 @@ class Block:
         self.pitbox = (self.xpos - 19, self.ypos - 20, self.width + 4, self.height + 10)
         #pygame.draw.rect(win, (0, 0, 255), self.pitbox, 2)
 
-    def collide(self, rect):
+    def collide(self, rect): #barkhord ba hitbox
         if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
             if rect[1] + rect[3] > self.hitbox[1] and rect[1] < self.hitbox[1] + self.hitbox[3]:
                 return True
         return False
 
-    def pseudoCollide(self, rect):
+    def pseudoCollide(self, rect): #barkhord ba pitbox (pseudo hitbox)
         if rect[0] + rect[2] > self.pitbox[0] and rect[0] < self.pitbox[0] + self.pitbox[2]:
             if rect[1] + rect[3] > self.pitbox[1] and rect[1] < self.pitbox[1] + self.pitbox[3]:
                 return True
@@ -359,8 +358,8 @@ global scoreboard
 scoreboard = ScoreSystem(575,10,40)
 scoreboard.draw()
 
-coinlist = [Coin(-999, -999,11,11, "images/spr_coin1.png", 20)]
-enemylist = [Enemy(-999, -999,113,58, "images/spr_enemy.png")]
+coinlist = [Coin(-999, -999,11,11, "images/spr_coin1.png", 20)] #in list ha ro inja tareef mikonim. baraye etminan yek object avalie toshoon gozashtam chon gahi oghat error midad.
+enemylist = [Enemy(-999, -999,113,58, "images/spr_enemy.png")] # -999 hast ke hich vaght dide nashe
 BLOCKlist = [Block(-999, -999,113,58, "images/spr_enemy.png")]
 
 

@@ -13,11 +13,11 @@ run = True
 
 while run:
 
-    pl.spawn()
+    pl.spawn() #player ra vared bazi mikonad
     spawnerC.spawnCoin()
-    spawnerH.spawnHazard()
+    spawnerH.spawnHazard() #spawner ya sazande haye marboot be har object (coin, enemy,block)
     spawnerB.spawnBlock()
-    pl.collisionCheck()
+    pl.collisionCheck() #marboot be barkhord player ba block
     scrollBackground(scrollSpeed, 0)  # harekate background
 
     # if (keyPressed("left")): #in size windows ro tagheer mide. shayad be dard bokhore baadan.
@@ -27,15 +27,6 @@ while run:
     #     rotateSprite(bg, 90)
     #     waitPress()
 
-    #
-
-    # if theTime > targetTime: #in ye timer hast vase baad
-    #     targetTime = theTime + 1
-    #     bgs += 10
-    # if bgs == 1280:
-    #     bgs = 0
-
-
     # if clock() > targetTime:
     #     targetTime = clock() + 2000
     #     scoreboard.Addscore(1)
@@ -44,7 +35,7 @@ while run:
         pl.despawn()
 
 
-    if (keyPressed("s")):
+    if (keyPressed("s")): #kelid k = ezafe kardane score
         scoreboard.Addscore(1)
 
     tick(60) #fps
