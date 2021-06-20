@@ -14,7 +14,6 @@ W, H = 640, 416 #tool o arze windows
 win = screenSize(W,H)
 
 global scrollSpeed
-
 scrollSpeed = -5 #sorat harekate background
 setBackgroundImage("images/temp_bg.png")
 
@@ -39,6 +38,12 @@ class Spawner:
         self.y = y
         self.localClock = clock()
         self.init = True
+        self.P1 = 0
+        self.P2 = 0
+        self.PP1 = 0
+        self.PP2 = 0
+        self.PPP1 = 0
+        self.PPP2 = 0
     def spawnCoin(self):
         global coinlist , Spr , Pt
         Spr = "images/spr_coin1.png"
@@ -46,7 +51,8 @@ class Spawner:
         RanY = [290,240,190,140,90]
         SprList = ["images/spr_coin1.png" , "images/spr_coin2.png" , "images/spr_coin3.png" , "images/spr_coin4.png"]
         Cchance = random.randrange(1,100)
-        RanTimer = random.randrange(500,7000)
+        RanTimer = random.randrange(500,1000)
+        num = random.randrange(1,4)
         if Cchance >= 55:
             Spr = SprList[0]
             Pt = 5
@@ -62,7 +68,8 @@ class Spawner:
 
         if clock() > self.localClock:
             self.localClock = clock() + RanTimer
-            coinlist.append(Coin(self.x, random.choice(RanY),11,11, Spr, Pt))
+            for i in range(num):
+                coinlist.append(Coin(self.x + (num*5), random.choice(RanY),11,11, Spr, Pt))
         for c in coinlist:
             c.spawn()
             if c.xpos < 0:
@@ -94,9 +101,15 @@ class Spawner:
 
 
     def spawnBlock(self):
-        global BLOCKlist
+        global BLOCKlist, M1, M2
+        M1 = False
+        M2 = False
+        Bchance = random.randrange(1, 1000)
+        B2chance = random.randrange(1, 1000)
+        B21chance = random.randrange(1, 1000)
+        B22chance = random.randrange(1, 1000)
         if clock() > self.localClock:
-            self.localClock = clock() + 250
+            self.localClock = clock() + 195
             if self.init:
                 for i in range(1, 742, 32):
                     BLOCKlist.append(Block(0 + i, 18, 32, 32, "images/spr_block.png"))
@@ -104,13 +117,40 @@ class Spawner:
                     BLOCKlist.append(Block(0 + i, 400, 32, 32, "images/spr_block.png"))
                     BLOCKlist.append(Block(0 + i, 368, 32, 32, "images/spr_block.png"))
                 self.init = False
-            BLOCKlist.append(Block(640, 18, 32, 32, "images/spr_block.png"))
-            BLOCKlist.append(Block(640, 50, 32, 32, "images/spr_block.png"))
-            BLOCKlist.append(Block(640, 400, 32, 32, "images/spr_block.png"))
-            BLOCKlist.append(Block(640, 368, 32, 32, "images/spr_block.png"))
+
+            if (10 < Bchance < 900 and self.P1 == 5) or self.P1 == 0:
+                self.P1 = 5
+                BLOCKlist.append(Block(640, 18, 32, 32, "images/spr_block.png"))
+                BLOCKlist.append(Block(640, 50, 32, 32, "images/spr_block.png"))
+                M1 = True
+            else:
+                self.P1 -= 1
+
+
+            if (10 < B2chance < 900 and self.P2 == 5) or self.P2 == 0:
+                self.P2 = 5
+                BLOCKlist.append(Block(640, 400, 32, 32, "images/spr_block.png"))
+                BLOCKlist.append(Block(640, 368, 32, 32, "images/spr_block.png"))
+                M2 = True
+            else:
+                self.P2 -= 1
+
+
+            if B21chance > 500 and M2 == True:
+                BLOCKlist.append(Block(640, 336, 32, 32, "images/spr_block.png"))
+                if B22chance > 400:
+                    BLOCKlist.append(Block(640, 304, 32, 32, "images/spr_block.png"))
+
+            if B22chance > 500 and M1 == True:
+                BLOCKlist.append(Block(640, 82, 32, 32, "images/spr_block.png"))
+                if B21chance > 400:
+                    BLOCKlist.append(Block(640, 114, 32, 32, "images/spr_block.png"))
+
+
+
         for b in BLOCKlist:
             b.spawn()
-            if b.xpos < 0:
+            if b.xpos < -100:
                 BLOCKlist.pop(BLOCKlist.index(b))
                 killSprite(b.sprite)
 
@@ -123,7 +163,7 @@ class Player:
         self.ypos = ypos
         self.width = width
         self.height = height
-        self.grav = 7 #har che ghadr bishtar bashe jazebe bishtare
+        self.grav = 6 #har che ghadr bishtar bashe jazebe bishtare
         self.sprite = makeSprite(spr,frames=32) #akse player
         self.xgrav = 1 # age -1 beshe yani jazabe bar aks shode
         self.inAir = True #in vase ine ke vasat paridan natooni jazabe taghir bedi
@@ -139,22 +179,21 @@ class Player:
 
     def spawn(self):
 
-        showSprite(self.sprite)
-        if clock() > self.localClock:  ##### marboot be animation
-            self.frame = (self.frame+1)%self.gframe
-            self.localClock += 60
+        if self.alive:  # check mikone ke player zende hast ya na
+            showSprite(self.sprite)
+            if clock() > self.localClock:  ##### marboot be animation
+                self.frame = (self.frame+1)%self.gframe
+                self.localClock += 60
 
-        if self.alive: #check mikone ke player zende hast ya na
-        
             #control player
-        
-            if (keyPressed("up") and self.inAir == False and self.Grounded == True and self.mg == "regG"): #kelid bala ro bezanin player mipare bala. hamchenin check mikone ke 1.player toye hava nist 2.player roye zamine (2 baad taghir mikone)
+
+            if (keyPressed("up") and self.inAir == False and self.Grounded == True and self.mg == "regG" and self.xgrav == 0): #kelid bala ro bezanin player mipare bala. hamchenin check mikone ke 1.player toye hava nist 2.player roye zamine (2 baad taghir mikone)
                 playSound(s_jump)
                 self.Grounded = False
                 self.inAir = True
                 self.mg = "revG"
                 self.xgrav = -1
-            elif (keyPressed("down") and self.inAir == False and self.Grounded == True and self.mg == "revG"): #mesle ghabli vali baraye az bala be paeen omadane player (kelid paeen ro bezanim mipare paeen)
+            elif (keyPressed("down") and self.inAir == False and self.Grounded == True and self.mg == "revG" and self.xgrav == 0): #mesle ghabli vali baraye az bala be paeen omadane player (kelid paeen ro bezanim mipare paeen)
                 playSound(s_jump)
                 self.Grounded = False
                 self.inAir = True
@@ -185,39 +224,42 @@ class Player:
         #pygame.draw.rect(win, (0, 0, 255), self.hitbox, 2)
 
     def collide(self, rect):
-        if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
-            if rect[1] + rect[3] > self.hitbox[1] and rect[1] < self.hitbox[1] + self.hitbox[3]:
-                return True
+        if self.alive:
+            if rect[0] + rect[2] > self.hitbox[0] and rect[0] < self.hitbox[0] + self.hitbox[2]:
+                if rect[1] + rect[3] > self.hitbox[1] and rect[1] < self.hitbox[1] + self.hitbox[3]:
+                    return True
         return False
 
     def collisionCheck(self):
+        if self.alive:
+            if self.mg == "regG":
+                self.xgrav = 1
+            if self.mg == "revG":
+                self.xgrav = -1
 
-        if self.mg == "regG":
-            self.xgrav = 1
-        if self.mg == "revG":
-            self.xgrav = -1
 
+            global i
+            for i in BLOCKlist:
 
-        global i
-        for i in BLOCKlist:
+                if i.pseudoCollide(self.hitbox):
+                    self.Grounded = True
+                    self.inAir = False
+                    self.xgrav = 0
 
-            if i.pseudoCollide(self.hitbox):
-                self.Grounded = True
-                self.inAir = False
-                self.xgrav = 0
-
-            if i.collide(self.hitbox):
-                print("player hit a block")
+                if i.collide(self.hitbox):
+                    self.despawn()
+                    print("player hit a block")
 
     def despawn(self): #player mimire va spritesh az bane mire
         if self.alive == True:
             self.alive = False
-            print("Player is dead")
             killSprite(self.sprite)
+            print("Player is dead")
             showLabel(gameover)
-            #test music(music momkene ziad boland bashe, check konin)
+            # test music(music momkene ziad boland bashe, check konin)
             stopSound(mus_test1)
-            playSound(mus_test2, loops=-1) #loop = -1 bashe bi nahyat loop mishe
+            playSound(mus_test2, loops=-1)  # loop = -1 bashe bi nahyat loop mishe
+
 
 
 class Coin:
@@ -227,7 +269,7 @@ class Coin:
         self.width = width
         self.height = height
         self.sprite = makeSprite(spr,frames= 8)
-        self.speed = 2
+        self.speed = 2.5
         self.point = point
         self.collected = False
         self.frame = 0
@@ -246,6 +288,12 @@ class Coin:
             changeSpriteImage(self.sprite, 0 * 8 + self.frame)
 
         self.hitbox = (self.xpos - 5.5, self.ypos - 5.5, self.width, self.height)
+
+        global z
+        for z in BLOCKlist:
+            if z.collide(self.hitbox):
+                killSprite(self.sprite)
+                self.x = -999
         # pygame.draw.rect(win, (0, 0, 255), self.hitbox, 2)
 
 
@@ -262,7 +310,7 @@ class Enemy:
         self.width = width
         self.height = height
         self.sprite = makeSprite(spr,frames=2)
-        self.speed = 3
+        self.speed = 4
         self.point = 0
 
 
@@ -296,7 +344,7 @@ class Block:
         self.width = width
         self.height = height
         self.sprite = makeSprite(spr)
-        self.speed = 2
+        self.speed = 2.5
         self.frame = 0
         self.gframe = 8
         self.localClock = clock()
@@ -308,7 +356,7 @@ class Block:
         moveSprite(self.sprite, self.xpos, self.ypos, True)
 
         self.hitbox = (self.xpos - 16, self.ypos - 16, self.width, self.height)
-        self.pitbox = (self.xpos - 19, self.ypos - 20, self.width + 4, self.height + 10)
+        self.pitbox = (self.xpos - 19, self.ypos - 22, self.width + 4, self.height + 14)
         #pygame.draw.rect(win, (0, 0, 255), self.pitbox, 2)
 
     def collide(self, rect):
@@ -345,15 +393,17 @@ class MusicPlayer:
     pass
 
 
+
+
 #define objects
 
 
 global pl
 pl = Player(200,240,45,45,"images/SPR_NINJA.png")
 
-spawnerC = Spawner(750,322)
-spawnerH = Spawner(750,322)
-spawnerB = Spawner(750,64)
+spawnerC = Spawner(800,322)
+spawnerH = Spawner(800,322)
+spawnerB = Spawner(800,64)
 
 global scoreboard
 scoreboard = ScoreSystem(575,10,40)

@@ -7,48 +7,51 @@ import json
 import math
 import random
 
-run = True
 
+run = True
 
 
 while run:
 
-    pl.spawn()
-    spawnerC.spawnCoin()
-    spawnerH.spawnHazard()
-    spawnerB.spawnBlock()
-    pl.collisionCheck()
-    scrollBackground(scrollSpeed, 0)  # harekate background
+        if pl.alive == True:
+            pl.spawn()
+            spawnerC.spawnCoin()
+            spawnerH.spawnHazard()
+            spawnerB.spawnBlock()
+            pl.collisionCheck()
+            scrollBackground(scrollSpeed, 0)  # harekate background
 
-    # if (keyPressed("left")): #in size windows ro tagheer mide. shayad be dard bokhore baadan.
-    #     W , H = H , W
-    #     screenSize(W,H)
-    #     rotateSprite(pl, 90)
-    #     rotateSprite(bg, 90)
-    #     waitPress()
+        # if (keyPressed("left")): #in size windows ro tagheer mide. shayad be dard bokhore baadan.
+        #     W , H = H , W
+        #     screenSize(W,H)
+        #     rotateSprite(pl, 90)
+        #     rotateSprite(bg, 90)
+        #     waitPress()
 
-    #
+        #
 
-    # if theTime > targetTime: #in ye timer hast vase baad
-    #     targetTime = theTime + 1
-    #     bgs += 10
-    # if bgs == 1280:
-    #     bgs = 0
-
-
-    # if clock() > targetTime:
-    #     targetTime = clock() + 2000
-    #     scoreboard.Addscore(1)
-
-    if (keyPressed("k")): #kelid k = koshtan player
-        pl.despawn()
+        # if theTime > targetTime: #in ye timer hast vase baad
+        #     targetTime = theTime + 1
+        #     bgs += 10
+        # if bgs == 1280:
+        #     bgs = 0
 
 
-    if (keyPressed("s")):
-        scoreboard.Addscore(1)
+        # if clock() > targetTime:
+        #     targetTime = clock() + 2000
+        #     scoreboard.Addscore(1)
 
-    tick(60) #fps
+        if (keyPressed("k")) and pl.alive == False: #kelid k = koshtan player
+            pl.despawn()
 
-    updateDisplay() #update
+
+        if (keyPressed("s")):
+            scoreboard.Addscore(1)
+
+
+
+        tick(60) #fps
+
+        updateDisplay() #update
 
 
