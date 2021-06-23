@@ -16,10 +16,13 @@ while run:
         if pl.alive == True:
             pl.spawn()
             spawnerC.spawnCoin()
-            spawnerH.spawnHazard()
             spawnerB.spawnBlock()
             pl.collisionCheck()
             scrollBackground(scrollSpeed, 0)  # harekate background
+            spawnerE.spawnHazard(320, 96,"images/spr_enemy.png",enemylist,type= "Enemy")
+            spawnerS.spawnHazard(346, 69, "images/spr_spike.png", spikelist,type= "Spike")
+        # if pl.ypos > 450 or pl.ypos < -32:
+        #     pl.despawn()
 
         # if (keyPressed("left")): #in size windows ro tagheer mide. shayad be dard bokhore baadan.
         #     W , H = H , W
